@@ -1,0 +1,14 @@
+{
+  "name": "cadence-base",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "api"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=frontend",
+    "dev": "npm run dev --workspace=frontend",
+    "start": "npm run preview --workspace=frontend"
+  }
+}
