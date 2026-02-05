@@ -1,27 +1,27 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "frontend/dist",
-  "installCommand": "npm install",
-  "framework": null,
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/.next",
+  "installCommand": "npm install --prefix frontend",
+  "framework": "nextjs",
   "routes": [
     {
       "src": "/.well-known/farcaster.json",
-      "dest": "/api/farcaster"
-    },
-    {
-      "src": "/api/farcaster",
-      "dest": "/api/farcaster.js"
+      "dest": "/.well-known/farcaster.json"
     },
     {
       "src": "/api/(.*)",
-      "dest": "/api/index.js"
-    },
+      "dest": "/api/$1"
+    }
+  ],
+  "headers": [
     {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/.well-known/farcaster.json",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        }
+      ]
     }
   ],
   "env": {
