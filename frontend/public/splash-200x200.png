@@ -1,0 +1,7 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="200" fill="#0a0a0a"/>
+  <circle cx="100" cy="80" r="40" fill="#00d395" opacity="0.2"/>
+  <circle cx="100" cy="80" r="25" fill="#00d395" opacity="0.4"/>
+  <circle cx="100" cy="80" r="12" fill="#00d395"/>
+  <text x="100" y="140" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#ffffff" text-anchor="middle">CB</text>
+</svg>

@@ -1,0 +1,30 @@
+{
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
+  "installCommand": "npm install --prefix frontend && npm install --prefix api",
+  "framework": null,
+  "routes": [
+    {
+      "src": "/.well-known/farcaster.json",
+      "dest": "/api/farcaster"
+    },
+    {
+      "src": "/api/farcaster",
+      "dest": "/api/farcaster.js"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "env": {
+    "MONGODB_URI": "@mongodb_uri"
+  }
+}
