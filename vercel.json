@@ -1,18 +1,8 @@
 {
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/.next",
-  "installCommand": "npm install --prefix frontend",
+  "installCommand": "npm install",
   "framework": "nextjs",
-  "routes": [
-    {
-      "src": "/.well-known/farcaster.json",
-      "dest": "/.well-known/farcaster.json"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    }
-  ],
   "headers": [
     {
       "source": "/.well-known/farcaster.json",
