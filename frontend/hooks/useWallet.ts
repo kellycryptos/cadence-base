@@ -14,7 +14,6 @@ export function useWallet() {
 
   useEffect(() => {
     setIsMounted(true)
-    // Check if already connected
     const storedAddress = localStorage.getItem('wallet_address')
     if (storedAddress) {
       setAddress(storedAddress)

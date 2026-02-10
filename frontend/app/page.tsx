@@ -2,12 +2,6 @@
 
 import { useState, useEffect } from 'react'
 
-declare global {
-  interface Window {
-    ethereum?: any
-  }
-}
-
 export default function Home() {
   const [mounted, setMounted] = useState(false)
   const [address, setAddress] = useState<string | null>(null)
