@@ -1,8 +1,19 @@
 {
-  "buildCommand": "cd frontend && npm install && npm run build",
-  "outputDirectory": "frontend/.next",
-  "installCommand": "npm install",
-  "framework": "nextjs",
+  "buildCommand": "cd frontend-vite && npm run build",
+  "outputDirectory": "frontend-vite/dist",
+  "devCommand": "cd frontend-vite && npm run dev",
+  "installCommand": "cd frontend-vite && npm install",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    },
+    {
+      "source": "/.well-known/farcaster.json",
+      "destination": "/frontend-vite/dist/.well-known/farcaster.json"
+    }
+  ],
   "headers": [
     {
       "source": "/.well-known/farcaster.json",
@@ -10,11 +21,35 @@
         {
           "key": "Content-Type",
           "value": "application/json"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
+      "source": "/api/:path*",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
         }
       ]
     }
   ],
-  "env": {
-    "MONGODB_URI": "@mongodb_uri"
-  }
+  "crons": [
+    {
+      "path": "/api/check-reminders",
+      "schedule": "0 9 * * *"
+    }
+  ]
 }

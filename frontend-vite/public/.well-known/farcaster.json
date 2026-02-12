@@ -1,0 +1,37 @@
+{
+    "accountAssociation": {
+        "header": "",
+        "payload": "",
+        "signature": ""
+    },
+    "miniapp": {
+        "version": "1",
+        "name": "Cadence Base",
+        "homeUrl": "https://cadence-base.vercel.app",
+        "iconUrl": "https://cadence-base.vercel.app/icon.png",
+        "splashImageUrl": "https://cadence-base.vercel.app/splash.png",
+        "splashBackgroundColor": "#0a0a0f",
+        "webhookUrl": "https://cadence-base.vercel.app/api/webhook",
+        "subtitle": "Save USDC on Base",
+        "description": "Build consistent USDC savings on Base with structured plans and reminders. Non-custodial, secure, and simple.",
+        "screenshotUrls": [
+            "https://cadence-base.vercel.app/screenshot1.png",
+            "https://cadence-base.vercel.app/screenshot2.png",
+            "https://cadence-base.vercel.app/screenshot3.png"
+        ],
+        "primaryCategory": "finance",
+        "tags": [
+            "savings",
+            "usdc",
+            "base",
+            "defi",
+            "finance"
+        ],
+        "heroImageUrl": "https://cadence-base.vercel.app/og-image.png",
+        "tagline": "Save USDC consistently",
+        "ogTitle": "Cadence Base - Save USDC on Base",
+        "ogDescription": "Build consistent USDC savings on Base with structured plans and reminders.",
+        "ogImageUrl": "https://cadence-base.vercel.app/og-image.png",
+        "noindex": false
+    }
+}
