@@ -22,11 +22,11 @@
             "defi",
             "finance"
         ],
-        "heroImageUrl": "https://cadence-base.vercel.app/og-image.svg",
+        "heroImageUrl": "https://cadence-base.vercel.app/og-image.png",
         "tagline": "Save USDC consistently",
         "ogTitle": "Save USDC on Base",
         "ogDescription": "Build consistent USDC savings on Base with structured plans and reminders.",
-        "ogImageUrl": "https://cadence-base.vercel.app/og-image.svg",
+        "ogImageUrl": "https://cadence-base.vercel.app/og-image.png",
         "noindex": false
     }
 }
