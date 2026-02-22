@@ -30,7 +30,7 @@ export default function WalletConnect() {
             <div className="mt-xl">
                 <div className="mt-xl">
                     {connectors
-                        .filter((c, i, self) => self.findIndex(x => x.name === c.name) === i) // Deduplicate by name
+                        .filter(connector => connector.id === 'farcaster' || connector.id === 'metaMask' || connector.id === 'coinbaseWalletSDK')
                         .map((connector) => (
                             <button
                                 key={connector.uid}
