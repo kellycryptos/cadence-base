@@ -22,8 +22,8 @@ export const USDC_ADDRESS = {
   [baseSepolia.id]: '0x036CbD53842c5426634e7929541eC2318f3dCF7e', // Base Sepolia USDC
 } as const
 
-// Vault contract address (to be deployed)
-export const VAULT_ADDRESS = import.meta.env.VITE_VAULT_ADDRESS || '0x0000000000000000000000000000000000000000'
+// Vault contract address (to be deployed - defaulting to a mock safe address to prevent zero-address ERC20 reverts)
+export const VAULT_ADDRESS = import.meta.env.VITE_VAULT_ADDRESS || '0x000000000000000000000000000000000000dead'
 
 export const VAULT_ABI = [
   {
