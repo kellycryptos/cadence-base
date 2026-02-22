@@ -1,4 +1,5 @@
 import { useConnect } from 'wagmi'
+import { Wallet, ChevronRight } from 'lucide-react'
 
 export default function WalletConnect() {
     const { connectors, connect } = useConnect()
@@ -36,8 +37,11 @@ export default function WalletConnect() {
                                 key={connector.uid}
                                 onClick={() => connect({ connector })}
                                 className="btn-primary w-full mb-3"
+                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                             >
+                                <Wallet size={18} />
                                 Connect {connector.name}
+                                <ChevronRight size={18} style={{ marginLeft: 'auto', opacity: 0.5 }} />
                             </button>
                         ))}
                 </div>

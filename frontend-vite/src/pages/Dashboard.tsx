@@ -3,6 +3,7 @@ import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useDis
 import { parseUnits, formatUnits } from 'viem'
 import { VAULT_ADDRESS, VAULT_ABI, USDC_ADDRESS, USDC_ABI } from '../utils/config'
 import { useChainId } from 'wagmi'
+import { LogOut, ArrowDownCircle, ArrowUpCircle, Clock, CheckCircle } from 'lucide-react'
 
 interface DashboardProps {
     address: `0x${string}`
@@ -140,11 +141,12 @@ export default function Dashboard({ address }: DashboardProps) {
             <div className="dashboard-header">
                 <h1>Your Savings</h1>
                 <div className="wallet-info">
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--success)', boxShadow: '0 0 8px var(--success)' }}></div>
                     <span className="wallet-address">
                         {address.slice(0, 6)}...{address.slice(-4)}
                     </span>
-                    <button className="btn-secondary" onClick={() => disconnect()}>
-                        Disconnect
+                    <button className="btn-secondary" onClick={() => disconnect()} style={{ padding: '0.4rem 0.8rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <LogOut size={16} /> Disconnect
                     </button>
                 </div>
             </div>
@@ -196,7 +198,9 @@ export default function Dashboard({ address }: DashboardProps) {
                                     className="btn-primary mt-sm"
                                     onClick={handleApprove}
                                     disabled={isApprovePending || isApproveConfirming || !depositAmount}
+                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                                 >
+                                    <CheckCircle size={18} />
                                     {isApprovePending || isApproveConfirming ? 'Approving...' : 'Approve USDC'}
                                 </button>
                             ) : (
@@ -204,7 +208,9 @@ export default function Dashboard({ address }: DashboardProps) {
                                     className="btn-primary mt-sm"
                                     onClick={handleDeposit}
                                     disabled={isDepositPending || isDepositConfirming || !depositAmount}
+                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                                 >
+                                    <ArrowDownCircle size={18} />
                                     {isDepositPending || isDepositConfirming ? 'Depositing...' : 'Deposit'}
                                 </button>
                             )}
@@ -221,7 +227,9 @@ export default function Dashboard({ address }: DashboardProps) {
                                 className="btn-secondary mt-sm"
                                 onClick={handleWithdraw}
                                 disabled={isWithdrawPending || isWithdrawConfirming || !withdrawAmount}
+                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%' }}
                             >
+                                <ArrowUpCircle size={18} />
                                 {isWithdrawPending || isWithdrawConfirming ? 'Withdrawing...' : 'Withdraw'}
                             </button>
                         </div>
@@ -257,7 +265,9 @@ export default function Dashboard({ address }: DashboardProps) {
                         className="btn-primary"
                         onClick={handleCreatePlan}
                         disabled={planStatus === 'loading' || !savingsPlan.amount}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                     >
+                        <Clock size={18} />
                         {planStatus === 'loading' ? 'Creating...' : 'Create Plan'}
                     </button>
                     {planStatus === 'success' && <p className="success-text mt-sm">Plan created successfully!</p>}
