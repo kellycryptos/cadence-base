@@ -2,7 +2,7 @@
   "buildCommand": "cd frontend-vite && npm run build",
   "outputDirectory": "frontend-vite/dist",
   "devCommand": "cd frontend-vite && npm run dev",
-  "installCommand": "cd frontend-vite && npm install",
+  "installCommand": "cd frontend-vite && rm -rf node_modules package-lock.json && npm install",
   "framework": null,
   "rewrites": [
     {
