@@ -6,33 +6,42 @@
 // 3. Send Farcaster notifications via Farcaster API
 
 export default async function handler(req, res) {
+    // Enable CORS
+    res.setHeader('Access-Control-Allow-Credentials', true)
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT')
+    res.setHeader(
+        'Access-Control-Allow-Headers',
+        'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+    )
+
+    if (req.method === 'OPTIONS') {
+        res.status(200).end()
+        return
+    }
+
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        const { userAddress, interval, amount, nextSaveDate } = req.body;
+        const { userAddress, interval, amount } = req.body;
 
         // Validate input
         if (!userAddress || !interval || !amount) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 
-        // TODO: Store savings plan in database
-        // await db.savingsPlan.create({
-        //   userAddress,
-        //   interval,
-        //   amount,
-        //   nextSaveDate,
-        //   createdAt: new Date(),
-        // });
+        // Mock database save
+        console.log('Savings plan created:', { userAddress, interval, amount });
 
-        console.log('Savings plan created:', { userAddress, interval, amount, nextSaveDate });
+        // Simulate delay
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         return res.status(200).json({
             success: true,
             message: 'Savings plan created successfully',
-            plan: { userAddress, interval, amount, nextSaveDate },
+            plan: { userAddress, interval, amount, nextExecution: new Date(Date.now() + 86400000).toISOString() },
         });
     } catch (error) {
         console.error('Error creating savings plan:', error);

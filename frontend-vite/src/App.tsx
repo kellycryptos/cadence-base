@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAccount, useChainId, useSwitchChain } from 'wagmi'
 import { base, baseSepolia } from 'wagmi/chains'
-import Dashboard from './components/Dashboard'
+import Dashboard from './pages/Dashboard'
 import WalletConnect from './components/WalletConnect'
 import './App.css'
 

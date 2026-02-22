@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useDisconnect } from 'wagmi'
 import { parseUnits, formatUnits } from 'viem'
-import { VAULT_ADDRESS, VAULT_ABI, USDC_ADDRESS, USDC_ABI } from '../config'
+import { VAULT_ADDRESS, VAULT_ABI, USDC_ADDRESS, USDC_ABI } from '../utils/config'
 import { useChainId } from 'wagmi'
 
 interface DashboardProps {
@@ -17,10 +17,14 @@ export default function Dashboard({ address }: DashboardProps) {
         interval: 'weekly',
         amount: '',
     })
+    const [planStatus, setPlanStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
 
-    // Read vault balance
+    const usdcAddress = USDC_ADDRESS[chainId as keyof typeof USDC_ADDRESS] as `0x${string}`
+    const vaultAddress = VAULT_ADDRESS as `0x${string}`
+
+    // Read vault stats
     const { data: vaultStats, refetch: refetchStats } = useReadContract({
-        address: VAULT_ADDRESS as `0x${string}`,
+        address: vaultAddress,
         abi: VAULT_ABI,
         functionName: 'getUserStats',
         args: [address],
@@ -28,70 +32,104 @@ export default function Dashboard({ address }: DashboardProps) {
 
     // Read USDC balance
     const { data: usdcBalance, refetch: refetchUSDC } = useReadContract({
-        address: USDC_ADDRESS[chainId as keyof typeof USDC_ADDRESS] as `0x${string}`,
+        address: usdcAddress,
         abi: USDC_ABI,
         functionName: 'balanceOf',
         args: [address],
     })
 
-    // Approve USDC
-    const { writeContract: approveUSDC } = useWriteContract()
+    // Read Allowance
+    const { data: allowance, refetch: refetchAllowance } = useReadContract({
+        address: usdcAddress,
+        abi: USDC_ABI,
+        functionName: 'allowance',
+        args: [address, vaultAddress],
+    })
 
-    // Deposit
-    const { writeContract: depositUSDC, data: depositHash } = useWriteContract()
-    const { isSuccess: isDeposited } = useWaitForTransactionReceipt({ hash: depositHash })
+    // Write Hooks
+    const { writeContract: writeApprove, data: approveHash, isPending: isApprovePending } = useWriteContract()
+    const { writeContract: writeDeposit, data: depositHash, isPending: isDepositPending } = useWriteContract()
+    const { writeContract: writeWithdraw, data: withdrawHash, isPending: isWithdrawPending } = useWriteContract()
 
-    // Withdraw
-    const { writeContract: withdrawUSDC, data: withdrawHash } = useWriteContract()
-    const { isSuccess: isWithdrawn } = useWaitForTransactionReceipt({ hash: withdrawHash })
+    // Transaction Receipts
+    const { isLoading: isApproveConfirming, isSuccess: isApproveSuccess } = useWaitForTransactionReceipt({ hash: approveHash })
+    const { isLoading: isDepositConfirming, isSuccess: isDepositSuccess } = useWaitForTransactionReceipt({ hash: depositHash })
+    const { isLoading: isWithdrawConfirming, isSuccess: isWithdrawSuccess } = useWaitForTransactionReceipt({ hash: withdrawHash })
 
     useEffect(() => {
-        if (isDeposited || isWithdrawn) {
+        if (isApproveSuccess) refetchAllowance()
+        if (isDepositSuccess || isWithdrawSuccess) {
             refetchStats()
             refetchUSDC()
+            setDepositAmount('')
+            setWithdrawAmount('')
         }
-    }, [isDeposited, isWithdrawn, refetchStats, refetchUSDC])
+    }, [isApproveSuccess, isDepositSuccess, isWithdrawSuccess, refetchAllowance, refetchStats, refetchUSDC])
 
-    const handleDeposit = async () => {
+    const handleApprove = () => {
         if (!depositAmount) return
-
-        const amount = parseUnits(depositAmount, 6) // USDC has 6 decimals
-
-        // First approve
-        approveUSDC({
-            address: USDC_ADDRESS[chainId as keyof typeof USDC_ADDRESS] as `0x${string}`,
+        const amount = parseUnits(depositAmount, 6)
+        writeApprove({
+            address: usdcAddress,
             abi: USDC_ABI,
             functionName: 'approve',
-            args: [VAULT_ADDRESS as `0x${string}`, amount],
+            args: [vaultAddress, amount],
         })
-
-        // Wait for approval, then deposit
-        setTimeout(() => {
-            depositUSDC({
-                address: VAULT_ADDRESS as `0x${string}`,
-                abi: VAULT_ABI,
-                functionName: 'deposit',
-                args: [amount],
-            })
-        }, 2000)
     }
 
-    const handleWithdraw = async () => {
+    const handleDeposit = () => {
+        if (!depositAmount) return
+        const amount = parseUnits(depositAmount, 6)
+        writeDeposit({
+            address: vaultAddress,
+            abi: VAULT_ABI,
+            functionName: 'deposit',
+            args: [amount],
+        })
+    }
+
+    const handleWithdraw = () => {
         if (!withdrawAmount) return
-
         const amount = parseUnits(withdrawAmount, 6)
-
-        withdrawUSDC({
-            address: VAULT_ADDRESS as `0x${string}`,
+        writeWithdraw({
+            address: vaultAddress,
             abi: VAULT_ABI,
             functionName: 'withdraw',
             args: [amount],
         })
     }
 
+    const handleCreatePlan = async () => {
+        if (!savingsPlan.amount) return
+        setPlanStatus('loading')
+        try {
+            const response = await fetch('/api/savings-plan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userAddress: address,
+                    interval: savingsPlan.interval,
+                    amount: savingsPlan.amount
+                })
+            })
+            if (!response.ok) throw new Error('Failed to create plan')
+            setPlanStatus('success')
+            setSavingsPlan(prev => ({ ...prev, amount: '' }))
+            setTimeout(() => setPlanStatus('idle'), 3000)
+        } catch (error) {
+            console.error(error)
+            setPlanStatus('error')
+            setTimeout(() => setPlanStatus('idle'), 3000)
+        }
+    }
+
     const balance = vaultStats ? formatUnits(vaultStats[0], 6) : '0'
-    const totalSaved = vaultStats ? formatUnits(vaultStats[1], 6) : '0'
+    const totalSaved = vaultStats ? formatUnits(vaultStats[1], 6) : '0' // Using same value for now as per contract
     const walletBalance = usdcBalance ? formatUnits(usdcBalance, 6) : '0'
+    const currentAllowance = allowance ? allowance : 0n
+
+    const parsedDepositAmount = depositAmount ? parseUnits(depositAmount, 6) : 0n
+    const needsApproval = parsedDepositAmount > currentAllowance
 
     // Calculate progress (example: goal of 1000 USDC)
     const goal = 1000
@@ -115,7 +153,7 @@ export default function Dashboard({ address }: DashboardProps) {
             <div className="stats-grid">
                 <div className="stat-card">
                     <div className="stat-value">${parseFloat(balance).toFixed(2)}</div>
-                    <div className="stat-label">Current Balance</div>
+                    <div className="stat-label">Vault Balance</div>
                 </div>
                 <div className="stat-card">
                     <div className="stat-value">${parseFloat(totalSaved).toFixed(2)}</div>
@@ -153,9 +191,23 @@ export default function Dashboard({ address }: DashboardProps) {
                                 value={depositAmount}
                                 onChange={(e) => setDepositAmount(e.target.value)}
                             />
-                            <button className="btn-primary mt-sm" onClick={handleDeposit}>
-                                Deposit
-                            </button>
+                            {needsApproval ? (
+                                <button
+                                    className="btn-primary mt-sm"
+                                    onClick={handleApprove}
+                                    disabled={isApprovePending || isApproveConfirming || !depositAmount}
+                                >
+                                    {isApprovePending || isApproveConfirming ? 'Approving...' : 'Approve USDC'}
+                                </button>
+                            ) : (
+                                <button
+                                    className="btn-primary mt-sm"
+                                    onClick={handleDeposit}
+                                    disabled={isDepositPending || isDepositConfirming || !depositAmount}
+                                >
+                                    {isDepositPending || isDepositConfirming ? 'Depositing...' : 'Deposit'}
+                                </button>
+                            )}
                         </div>
                         <div className="form-group">
                             <label>Withdraw USDC</label>
@@ -165,8 +217,12 @@ export default function Dashboard({ address }: DashboardProps) {
                                 value={withdrawAmount}
                                 onChange={(e) => setWithdrawAmount(e.target.value)}
                             />
-                            <button className="btn-secondary mt-sm" onClick={handleWithdraw}>
-                                Withdraw
+                            <button
+                                className="btn-secondary mt-sm"
+                                onClick={handleWithdraw}
+                                disabled={isWithdrawPending || isWithdrawConfirming || !withdrawAmount}
+                            >
+                                {isWithdrawPending || isWithdrawConfirming ? 'Withdrawing...' : 'Withdraw'}
                             </button>
                         </div>
                     </div>
@@ -186,7 +242,6 @@ export default function Dashboard({ address }: DashboardProps) {
                             <option value="daily">Daily</option>
                             <option value="weekly">Weekly</option>
                             <option value="monthly">Monthly</option>
-                            <option value="yearly">Yearly</option>
                         </select>
                     </div>
                     <div className="form-group">
@@ -198,7 +253,15 @@ export default function Dashboard({ address }: DashboardProps) {
                             onChange={(e) => setSavingsPlan({ ...savingsPlan, amount: e.target.value })}
                         />
                     </div>
-                    <button className="btn-primary">Create Plan</button>
+                    <button
+                        className="btn-primary"
+                        onClick={handleCreatePlan}
+                        disabled={planStatus === 'loading' || !savingsPlan.amount}
+                    >
+                        {planStatus === 'loading' ? 'Creating...' : 'Create Plan'}
+                    </button>
+                    {planStatus === 'success' && <p className="success-text mt-sm">Plan created successfully!</p>}
+                    {planStatus === 'error' && <p className="error-text mt-sm">Failed to create plan.</p>}
                     <p className="mt-md text-muted" style={{ fontSize: '0.875rem' }}>
                         You'll receive Farcaster reminders when it's time to save. Deposits are always manual.
                     </p>

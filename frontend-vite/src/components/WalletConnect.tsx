@@ -28,16 +28,19 @@ export default function WalletConnect() {
             </div>
 
             <div className="mt-xl">
-                {connectors.map((connector) => (
-                    <button
-                        key={connector.uid}
-                        onClick={() => connect({ connector })}
-                        className="btn-primary"
-                        style={{ marginTop: '1rem' }}
-                    >
-                        Connect Wallet
-                    </button>
-                ))}
+                <div className="mt-xl">
+                    {connectors
+                        .filter((c, i, self) => self.findIndex(x => x.name === c.name) === i) // Deduplicate by name
+                        .map((connector) => (
+                            <button
+                                key={connector.uid}
+                                onClick={() => connect({ connector })}
+                                className="btn-primary w-full mb-3"
+                            >
+                                Connect {connector.name}
+                            </button>
+                        ))}
+                </div>
             </div>
 
             <p className="mt-lg text-muted" style={{ fontSize: '0.875rem' }}>

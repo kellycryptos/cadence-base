@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 
 async function main() {
-  console.log("Deploying CadenceSavingsFactory to Base...");
+  console.log("Deploying CadenceSavings to Base...");
 
   // USDC token addresses
   const USDC_ADDRESSES = {
@@ -19,31 +19,40 @@ async function main() {
     usdcAddress = USDC_ADDRESSES.baseMainnet;
     console.log("Deploying to Base Mainnet");
   } else {
-    throw new Error("Unsupported network. Use baseSepolia or baseMainnet");
+    // Fallback for local testing or other networks if needed, or throw
+    console.warn("Network not recognized, defaulting to Base Sepolia USDC for testing");
+    usdcAddress = USDC_ADDRESSES.baseSepolia;
   }
 
   console.log(`Using USDC address: ${usdcAddress}`);
 
-  // Deploy Factory
-  const CadenceSavingsFactory = await hre.ethers.getContractFactory("CadenceSavingsFactory");
-  const factory = await CadenceSavingsFactory.deploy(usdcAddress);
+  // Deploy Vault
+  const CadenceSavings = await hre.ethers.getContractFactory("CadenceSavings");
+  const vault = await CadenceSavings.deploy(usdcAddress);
 
-  await factory.waitForDeployment();
-  const factoryAddress = await factory.getAddress();
+  await vault.waitForDeployment();
+  const vaultAddress = await vault.getAddress();
 
-  console.log(`\n✅ CadenceSavingsFactory deployed to: ${factoryAddress}`);
+  console.log(`\n✅ CadenceSavings deployed to: ${vaultAddress}`);
   console.log(`   Network: ${network}`);
   console.log(`   USDC Token: ${usdcAddress}`);
-  
+
   console.log("\n⏳ Waiting for block confirmations...");
-  await factory.deploymentTransaction().wait(5);
+  // Wait fewer blocks for testnets if needed, but 5 is safe
+  if (network !== "hardhat" && network !== "localhost") {
+    try {
+      await vault.deploymentTransaction().wait(5);
+    } catch (e) {
+      console.log("Wait failed or timed out", e);
+    }
+  }
 
   // Verify on Basescan
-  if (process.env.BASESCAN_API_KEY) {
+  if (process.env.BASESCAN_API_KEY && network !== "hardhat" && network !== "localhost") {
     console.log("\n📝 Verifying contract on Basescan...");
     try {
       await hre.run("verify:verify", {
-        address: factoryAddress,
+        address: vaultAddress,
         constructorArguments: [usdcAddress],
       });
       console.log("✅ Contract verified on Basescan");
@@ -54,8 +63,7 @@ async function main() {
 
   console.log("\n🎉 Deployment complete!");
   console.log("\nAdd this to your frontend config:");
-  console.log(`VITE_FACTORY_ADDRESS=${factoryAddress}`);
-  console.log(`VITE_USDC_ADDRESS=${usdcAddress}`);
+  console.log(`VITE_VAULT_ADDRESS=${vaultAddress}`);
 }
 
 main()

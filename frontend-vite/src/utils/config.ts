@@ -24,25 +24,25 @@ export const VAULT_ADDRESS = import.meta.env.VITE_VAULT_ADDRESS || '0x0000000000
 
 export const VAULT_ABI = [
   {
-    inputs: [{ internalType: 'uint256', name: '_amount', type: 'uint256' }],
+    inputs: [{ internalType: 'uint256', name: 'amount', type: 'uint256' }],
     name: 'deposit',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'uint256', name: '_amount', type: 'uint256' }],
+    inputs: [{ internalType: 'uint256', name: 'amount', type: 'uint256' }],
     name: 'withdraw',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: '_user', type: 'address' }],
+    inputs: [{ internalType: 'address', name: 'user', type: 'address' }],
     name: 'getUserStats',
     outputs: [
       { internalType: 'uint256', name: 'balance', type: 'uint256' },
-      { internalType: 'uint256', name: 'historicalTotal', type: 'uint256' },
+      { internalType: 'uint256', name: 'totalSaved', type: 'uint256' },
     ],
     stateMutability: 'view',
     type: 'function',
@@ -55,8 +55,8 @@ export const VAULT_ABI = [
     type: 'function',
   },
   {
-    inputs: [{ internalType: 'address', name: '', type: 'address' }],
-    name: 'totalSaved',
+    inputs: [],
+    name: 'totalValueLocked',
     outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',
@@ -66,6 +66,7 @@ export const VAULT_ABI = [
     inputs: [
       { indexed: true, internalType: 'address', name: 'user', type: 'address' },
       { indexed: false, internalType: 'uint256', name: 'amount', type: 'uint256' },
+      { indexed: false, internalType: 'uint256', name: 'timestamp', type: 'uint256' },
     ],
     name: 'Deposited',
     type: 'event',
@@ -75,6 +76,7 @@ export const VAULT_ABI = [
     inputs: [
       { indexed: true, internalType: 'address', name: 'user', type: 'address' },
       { indexed: false, internalType: 'uint256', name: 'amount', type: 'uint256' },
+      { indexed: false, internalType: 'uint256', name: 'timestamp', type: 'uint256' },
     ],
     name: 'Withdrawn',
     type: 'event',
